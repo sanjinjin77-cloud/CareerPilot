@@ -1,6 +1,7 @@
 package com.careerpilot.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -24,6 +25,10 @@ public class CareerPlan implements Serializable {
     private String roadmap;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    @TableField(exist = false)
+    private String generationSource;
+    @TableField(exist = false)
+    private String model;
 
     public Long getId() {
         return id;
@@ -111,5 +116,21 @@ public class CareerPlan implements Serializable {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getGenerationSource() {
+        return generationSource;
+    }
+
+    public void setGenerationSource(String generationSource) {
+        this.generationSource = generationSource;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
     }
 }

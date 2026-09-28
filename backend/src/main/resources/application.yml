@@ -1,19 +1,25 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8081}
 
 spring:
   application:
     name: career-pilot-backend
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/career_pilot?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3306/career_pilot?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
     username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD:}
+    password: ${MYSQL_PASSWORD:123456}
+    hikari:
+      connection-timeout: 5000
   sql:
     init:
       mode: ${SQL_INIT_MODE:never}
       schema-locations: classpath:schema.sql
       continue-on-error: true
+  flyway:
+    enabled: ${FLYWAY_ENABLED:true}
+    baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:true}
+    locations: classpath:db/migration
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
@@ -24,8 +30,18 @@ mybatis-plus:
       id-type: auto
 
 career-pilot:
+  auth:
+    jwt-secret: ${JWT_SECRET:career-pilot-dev-secret-change-me}
+    issuer: ${JWT_ISSUER:career-pilot}
+    expiration-seconds: ${JWT_EXPIRATION_SECONDS:86400}
   ai:
-    provider: mock
+    enabled: ${AI_ENABLED:false}
+    base-url: ${AI_BASE_URL:https://api.openai.com/v1}
+    api-key: ${AI_API_KEY:}
+    model: ${AI_MODEL:}
+    timeout-seconds: ${AI_TIMEOUT_SECONDS:60}
+    quota-enabled: ${AI_QUOTA_ENABLED:true}
+    daily-limit: ${AI_DAILY_LIMIT:20}
 
 logging:
   level:

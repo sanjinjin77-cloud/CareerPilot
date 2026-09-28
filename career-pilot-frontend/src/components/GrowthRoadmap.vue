@@ -1,3 +1,21 @@
+<script setup lang="ts">
+const props = defineProps<{
+  activeStep: number;
+  labels: string[];
+}>();
+
+const descriptions = [
+  '明确专业方向和可选岗位。',
+  '建立岗位所需能力基础。',
+  '把课程和训练转化为作品。',
+  '沉淀可投递的简历表达。',
+  '围绕项目和岗位持续训练。',
+  '复盘投递并提升转化率。',
+];
+
+const levelLabels = ['第一关', '第二关', '第三关', '第四关', '第五关', '第六关'];
+</script>
+
 <template>
   <section class="home-section">
     <div class="section-heading">
@@ -7,41 +25,19 @@
     </div>
 
     <div class="roadmap-map">
-      <article class="roadmap-node roadmap-node--done">
-        <span class="roadmap-node__level">第一关</span>
-        <i>01</i>
-        <strong>职业认知</strong>
-        <p>明确专业方向和可选岗位。</p>
-      </article>
-      <article class="roadmap-node roadmap-node--done">
-        <span class="roadmap-node__level">第二关</span>
-        <i>02</i>
-        <strong>技能学习</strong>
-        <p>建立岗位所需能力基础。</p>
-      </article>
-      <article class="roadmap-node roadmap-node--current">
-        <span class="roadmap-node__level">第三关</span>
-        <i>03</i>
-        <strong>项目积累</strong>
-        <p>把课程和训练转化为作品。</p>
-      </article>
-      <article class="roadmap-node">
-        <span class="roadmap-node__level">第四关</span>
-        <i>04</i>
-        <strong>简历优化</strong>
-        <p>沉淀可投递的简历表达。</p>
-      </article>
-      <article class="roadmap-node">
-        <span class="roadmap-node__level">第五关</span>
-        <i>05</i>
-        <strong>模拟面试</strong>
-        <p>围绕项目和岗位持续训练。</p>
-      </article>
-      <article class="roadmap-node">
-        <span class="roadmap-node__level">第六关</span>
-        <i>06</i>
-        <strong>Offer 冲刺</strong>
-        <p>复盘投递并提升转化率。</p>
+      <article
+        v-for="(label, index) in props.labels"
+        :key="label"
+        class="roadmap-node"
+        :class="{
+          'roadmap-node--done': index + 1 < activeStep,
+          'roadmap-node--current': index + 1 === activeStep,
+        }"
+      >
+        <span class="roadmap-node__level">{{ levelLabels[index] || `第 ${index + 1} 关` }}</span>
+        <i>{{ String(index + 1).padStart(2, '0') }}</i>
+        <strong>{{ label }}</strong>
+        <p>{{ descriptions[index] || '继续推进职业成长闭环。' }}</p>
       </article>
     </div>
   </section>

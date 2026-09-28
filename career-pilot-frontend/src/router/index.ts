@@ -36,7 +36,7 @@ const routes: RouteRecordRaw[] = [
         path: 'learning-plan',
         name: 'learning-plan',
         component: () => import('@/views/LearningPlan.vue'),
-        meta: { title: '学习规划' },
+        meta: { title: '学习计划' },
       },
       {
         path: 'career/job-match',
@@ -49,6 +49,12 @@ const routes: RouteRecordRaw[] = [
         name: 'job-filter',
         component: () => import('@/views/career/JobFilter.vue'),
         meta: { title: '岗位筛选' },
+      },
+      {
+        path: 'career/jd-analysis',
+        name: 'jd-analysis',
+        component: () => import('@/views/jd/JDView.vue'),
+        meta: { title: 'JD 分析' },
       },
       {
         path: 'ability',
@@ -84,7 +90,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'jd',
-        redirect: '/career/job-match',
+        redirect: '/career/jd-analysis',
       },
     ],
   },
@@ -99,8 +105,12 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   const authStore = useAuthStore();
+
+  if (authStore.hasToken && !authStore.initialized) {
+    await authStore.fetchCurrentUser();
+  }
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return { name: 'login', query: { redirect: to.fullPath } };
@@ -111,6 +121,11 @@ router.beforeEach((to) => {
   }
 
   return true;
+});
+
+router.afterEach((to) => {
+  const title = typeof to.meta.title === 'string' ? to.meta.title : 'CareerPilot';
+  document.title = `${title} - CareerPilot`;
 });
 
 export default router;

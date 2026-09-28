@@ -4,13 +4,14 @@ import com.careerpilot.common.Result;
 import com.careerpilot.dto.AiChatRequest;
 import com.careerpilot.entity.ChatMessage;
 import com.careerpilot.service.AiChatService;
+import com.careerpilot.service.AuthSessionService;
 import com.careerpilot.vo.AiChatResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -20,18 +21,21 @@ import java.util.List;
 public class AiChatController {
 
     private final AiChatService aiChatService;
+    private final AuthSessionService authSessionService;
 
-    public AiChatController(AiChatService aiChatService) {
+    public AiChatController(AiChatService aiChatService, AuthSessionService authSessionService) {
         this.aiChatService = aiChatService;
+        this.authSessionService = authSessionService;
     }
 
     @PostMapping("/chat")
-    public Result<AiChatResponse> chat(@Valid @RequestBody AiChatRequest request) {
-        return Result.success(aiChatService.chat(request));
+    public Result<AiChatResponse> chat(@Valid @RequestBody AiChatRequest request,
+                                       HttpServletRequest httpRequest) {
+        return Result.success(aiChatService.chat(authSessionService.currentUserId(httpRequest), request));
     }
 
     @GetMapping("/messages")
-    public Result<List<ChatMessage>> messages(@RequestParam(name = "userId", required = false) Long userId) {
-        return Result.success(aiChatService.listMessages(userId));
+    public Result<List<ChatMessage>> messages(HttpServletRequest request) {
+        return Result.success(aiChatService.listMessages(authSessionService.currentUserId(request)));
     }
 }

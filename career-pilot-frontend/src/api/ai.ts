@@ -1,4 +1,4 @@
-import { javaRequest } from '@/api/request';
+import { request } from '@/api/request';
 
 interface ApiResult<T> {
   code: number;
@@ -7,7 +7,6 @@ interface ApiResult<T> {
 }
 
 export interface AiChatPayload {
-  userId?: number;
   message: string;
 }
 
@@ -96,18 +95,15 @@ function unwrapResult<T>(result: ApiResult<T>) {
 }
 
 export async function sendAiChatApi(payload: AiChatPayload) {
-  const response = await javaRequest.post<ApiResult<AiChatResponse>>('/ai/chat', {
-    userId: payload.userId || 1,
+  const response = await request.post<ApiResult<AiChatResponse>>('/ai/chat', {
     message: payload.message,
   });
 
   return unwrapResult(response.data);
 }
 
-export async function getAiMessagesApi(userId = 1) {
-  const response = await javaRequest.get<ApiResult<AiMessage[]>>('/ai/messages', {
-    params: { userId },
-  });
+export async function getAiMessagesApi() {
+  const response = await request.get<ApiResult<AiMessage[]>>('/ai/messages');
 
   return unwrapResult(response.data);
 }

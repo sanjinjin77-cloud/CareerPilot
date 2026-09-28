@@ -18,7 +18,8 @@ const messageListRef = ref<HTMLElement | null>(null);
 const messages = ref<ChatMessage[]>([
   {
     role: 'assistant',
-    content: '你好，我是 CareerPilot AI 助手。你可以告诉我年级、专业、目标岗位、技能基础或项目经历，我会帮你更新成长档案。',
+    content:
+      '你好，我是 CareerPilot AI 助手。你可以告诉我年级、专业、目标岗位、技能基础或项目经历，我会帮你更新成长档案。',
   },
 ]);
 
@@ -45,10 +46,7 @@ async function handleSend() {
   await scrollToBottom();
 
   try {
-    const response = await sendAiChatApi({
-      userId: 1,
-      message: content,
-    });
+    const response = await sendAiChatApi({ message: content });
 
     careerStore.applyAiChatResponse(response);
     messages.value.push({
@@ -60,7 +58,7 @@ async function handleSend() {
     ElMessage.error(message);
     messages.value.push({
       role: 'assistant',
-      content: '后端服务暂时不可用，请确认 Java 后端已在 8080 端口启动后再试。',
+      content: 'AI 助手暂时不可用，请确认后端服务正常并重新登录后再试。',
     });
   } finally {
     loading.value = false;
@@ -100,7 +98,7 @@ async function handleSend() {
             type="textarea"
             :rows="3"
             resize="none"
-            placeholder="例如：我是大二软件工程专业，目标岗位是前端开发，目前会 Vue，但是 TypeScript 比较弱。"
+            placeholder="例如：我是大二软件工程专业，目标岗位是前端开发，目前会 Vue，但 TypeScript 比较弱。"
             @keydown.enter.exact.prevent="handleSend"
           />
           <el-button type="success" :loading="loading" @click="handleSend">发送</el-button>

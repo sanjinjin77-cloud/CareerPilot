@@ -18,6 +18,7 @@ const navItems = [
     children: [
       { label: '岗位匹配', path: '/career/job-match' },
       { label: '岗位筛选', path: '/career/job-filter' },
+      { label: 'JD 分析', path: '/career/jd-analysis' },
     ],
   },
   { label: '能力分析', path: '/ability' },
@@ -26,7 +27,7 @@ const navItems = [
     path: '/resume/materials',
     children: [
       { label: '简历素材', path: '/resume/materials' },
-      { label: '简历模板', path: '/resume/templates' },
+      { label: '简历草稿', path: '/resume/templates' },
     ],
   },
   { label: '模拟面试', path: '/interview' },

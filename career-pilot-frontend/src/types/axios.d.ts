@@ -12,6 +12,15 @@ declare module 'axios' {
       request: {
         use(handler: (config: { headers: Record<string, string> }) => { headers: Record<string, string> }): void;
       };
+      response: {
+        use(
+          onFulfilled: (response: AxiosResponse) => AxiosResponse,
+          onRejected?: (error: {
+            message?: string;
+            response?: { status?: number; data?: { message?: string } };
+          }) => unknown,
+        ): void;
+      };
     };
   }
 

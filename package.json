@@ -1,0 +1,14 @@
+{
+  "name": "career-pilot",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/dev.ps1",
+    "dev:open": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/dev.ps1 -OpenBrowser",
+    "dev:stop": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/stop.ps1",
+    "dev:status": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/status.ps1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -20,55 +20,18 @@ export interface RegisterPayload {
 export interface AuthResponse {
   access_token: string;
   token_type: string;
+  expires_in: number;
   user: AuthUser;
 }
 
-function createDemoAuthResponse(username = 'student'): AuthResponse {
-  return {
-    access_token: `cp_mock_token_${Date.now()}`,
-    token_type: 'bearer',
-    user: {
-      id: 1,
-      username,
-      email: 'student@example.com',
-    },
-  };
-}
-
 export async function loginApi(payload: LoginPayload) {
-  try {
-    return await request.post<AuthResponse>('/auth/login', payload);
-  } catch (error) {
-    if (payload.account && payload.password) {
-      return { data: createDemoAuthResponse(payload.account) };
-    }
-
-    throw error;
-  }
+  return request.post<AuthResponse>('/auth/login', payload);
 }
 
 export async function registerApi(payload: RegisterPayload) {
-  try {
-    return await request.post<AuthResponse>('/auth/register', payload);
-  } catch (error) {
-    if (payload.username && payload.email && payload.password) {
-      return { data: createDemoAuthResponse(payload.username) };
-    }
-
-    throw error;
-  }
+  return request.post<AuthResponse>('/auth/register', payload);
 }
 
 export async function getCurrentUserApi() {
-  try {
-    return await request.get<AuthUser>('/auth/me');
-  } catch {
-    return {
-      data: {
-        id: 1,
-        username: 'student',
-        email: 'student@example.com',
-      },
-    };
-  }
+  return request.get<AuthUser>('/auth/me');
 }

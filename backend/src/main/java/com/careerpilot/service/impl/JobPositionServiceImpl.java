@@ -2,8 +2,9 @@ package com.careerpilot.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.careerpilot.entity.UserProfile;
+import com.careerpilot.common.UserContext;
 import com.careerpilot.entity.JobPosition;
+import com.careerpilot.entity.UserProfile;
 import com.careerpilot.mapper.JobPositionMapper;
 import com.careerpilot.service.UserProfileService;
 import com.careerpilot.service.JobPositionService;
@@ -41,8 +42,9 @@ public class JobPositionServiceImpl extends ServiceImpl<JobPositionMapper, JobPo
 
     @Override
     public List<JobMatchVO> matchJobsForUser(Long userId) {
+        Long currentUserId = UserContext.requireValidUserId(userId);
         UserProfile profile = userProfileService.getOne(new LambdaQueryWrapper<UserProfile>()
-                .eq(UserProfile::getUserId, userId == null ? 1L : userId)
+                .eq(UserProfile::getUserId, currentUserId)
                 .last("LIMIT 1"));
 
         List<JobMatchVO> results = new ArrayList<>();

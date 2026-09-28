@@ -20,6 +20,8 @@ public class ResumeMaterial implements Serializable {
     private String rawText;
     private String optimizedText;
     private String tags;
+    private Long sourceTaskId;
+    private String sourceType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -77,6 +79,22 @@ public class ResumeMaterial implements Serializable {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    public Long getSourceTaskId() {
+        return sourceTaskId;
+    }
+
+    public void setSourceTaskId(Long sourceTaskId) {
+        this.sourceTaskId = sourceTaskId;
+    }
+
+    public String getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(String sourceType) {
+        this.sourceType = sourceType;
     }
 
     public LocalDateTime getCreatedAt() {

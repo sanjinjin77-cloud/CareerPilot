@@ -3,6 +3,7 @@ package com.careerpilot.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.careerpilot.common.UserContext;
 import com.careerpilot.entity.JobPosition;
 import com.careerpilot.entity.TargetOffer;
 import com.careerpilot.mapper.TargetOfferMapper;
@@ -24,7 +25,7 @@ public class TargetOfferServiceImpl extends ServiceImpl<TargetOfferMapper, Targe
     @Override
     public TargetOffer getCurrentTargetOffer(Long userId) {
         return getOne(new LambdaQueryWrapper<TargetOffer>()
-                .eq(TargetOffer::getUserId, normalizeUserId(userId))
+                .eq(TargetOffer::getUserId, UserContext.requireValidUserId(userId))
                 .eq(TargetOffer::getStatus, "active")
                 .orderByDesc(TargetOffer::getUpdatedAt)
                 .last("LIMIT 1"));
@@ -37,7 +38,7 @@ public class TargetOfferServiceImpl extends ServiceImpl<TargetOfferMapper, Targe
             throw new IllegalArgumentException("岗位不存在");
         }
 
-        Long normalizedUserId = normalizeUserId(userId);
+        Long normalizedUserId = UserContext.requireValidUserId(userId);
         update(new LambdaUpdateWrapper<TargetOffer>()
                 .eq(TargetOffer::getUserId, normalizedUserId)
                 .eq(TargetOffer::getStatus, "active")
@@ -61,7 +62,4 @@ public class TargetOfferServiceImpl extends ServiceImpl<TargetOfferMapper, Targe
         return offer;
     }
 
-    private Long normalizeUserId(Long userId) {
-        return userId == null || userId <= 0 ? 1L : userId;
-    }
 }

@@ -3,6 +3,7 @@ package com.careerpilot.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.careerpilot.ai.AiAnalysisResult;
 import com.careerpilot.ai.LargeModelClient;
+import com.careerpilot.common.UserContext;
 import com.careerpilot.dto.AiChatRequest;
 import com.careerpilot.entity.AbilityAnalysis;
 import com.careerpilot.entity.CareerPlan;
@@ -24,8 +25,6 @@ import java.util.List;
 
 @Service
 public class AiChatServiceImpl implements AiChatService {
-
-    private static final Long DEFAULT_USER_ID = 1L;
 
     private final ChatMessageService chatMessageService;
     private final UserProfileService userProfileService;
@@ -50,8 +49,8 @@ public class AiChatServiceImpl implements AiChatService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public AiChatResponse chat(AiChatRequest request) {
-        Long userId = normalizeUserId(request.getUserId());
+    public AiChatResponse chat(Long currentUserId, AiChatRequest request) {
+        Long userId = UserContext.requireValidUserId(currentUserId);
         String message = request.getMessage().trim();
 
         saveMessage(userId, "user", message);
@@ -76,7 +75,7 @@ public class AiChatServiceImpl implements AiChatService {
 
     @Override
     public List<ChatMessage> listMessages(Long userId) {
-        Long normalizedUserId = normalizeUserId(userId);
+        Long normalizedUserId = UserContext.requireValidUserId(userId);
         return chatMessageService.list(new LambdaQueryWrapper<ChatMessage>()
                 .eq(ChatMessage::getUserId, normalizedUserId)
                 .orderByAsc(ChatMessage::getCreatedAt)
@@ -189,10 +188,6 @@ public class AiChatServiceImpl implements AiChatService {
         material.setUpdatedAt(LocalDateTime.now());
         resumeMaterialService.save(material);
         return material;
-    }
-
-    private Long normalizeUserId(Long userId) {
-        return userId == null || userId <= 0 ? DEFAULT_USER_ID : userId;
     }
 
     private void setIfHasText(String value, TextSetter setter) {

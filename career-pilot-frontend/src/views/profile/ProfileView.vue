@@ -7,7 +7,6 @@ import { mockProfile } from '@/mock/careerPilotMock';
 import {
   calculateProfileCompletion,
   generatePlanPreviewMock,
-  saveProfileMock,
 } from '@/services/mockCareerService';
 
 const profile = reactive({ ...mockProfile });
@@ -23,7 +22,7 @@ async function handleSaveProfile() {
     Object.assign(profile, savedProfile);
     ElMessage.success('用户画像已保存到后端');
   } catch {
-    ElMessage.warning(`${saveProfileMock().message}，后端暂不可用时保留当前页面数据`);
+    ElMessage.warning('用户画像保存失败，当前修改仅保留在页面中，尚未写入数据库');
   } finally {
     loading.value = false;
   }
@@ -31,7 +30,7 @@ async function handleSaveProfile() {
 
 function handleGeneratePlan() {
   generatedPlan.value = generatePlanPreviewMock(profile);
-  ElMessage.success('已根据当前画像生成 mock 职业规划');
+  ElMessage.success('已根据当前画像生成本地规划预览');
 }
 
 onMounted(async () => {
@@ -39,7 +38,7 @@ onMounted(async () => {
     const savedProfile = await getProfileApi();
     Object.assign(profile, savedProfile);
   } catch {
-    // 首次进入还没有画像时，继续展示默认 mock 数据。
+    ElMessage.warning('画像加载失败，当前显示演示数据');
   }
 });
 </script>
@@ -162,7 +161,7 @@ onMounted(async () => {
           </el-col>
         </el-row>
         <div v-if="generatedPlan" class="mock-result">
-          <span>AI 规划预览</span>
+          <span>本地规划预览</span>
           <p>{{ generatedPlan }}</p>
         </div>
         <el-button type="primary" :loading="loading" @click="handleSaveProfile">保存画像</el-button>

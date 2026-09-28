@@ -1,3 +1,28 @@
+<script setup lang="ts">
+import { computed } from 'vue';
+
+import type { DashboardSnapshot } from '@/types';
+
+const props = defineProps<{
+  dashboard: DashboardSnapshot;
+}>();
+
+const completedMilestones = computed(() => Math.max(0, Math.min(
+  props.dashboard.milestoneTotal,
+  props.dashboard.milestoneStep - 1,
+)));
+
+const progressWidth = computed(() => (
+  `${Math.round((completedMilestones.value / Math.max(1, props.dashboard.milestoneTotal)) * 100)}%`
+));
+
+const trendLabel = computed(() => {
+  const trend = props.dashboard.matchTrend;
+  if (trend === 0) return '最新岗位评估';
+  return `较上次 ${trend > 0 ? '+' : ''}${trend}%`;
+});
+</script>
+
 <template>
   <section class="hero-shell">
     <div class="hero-bg-decoration">
@@ -26,33 +51,38 @@
             <span class="assistant-card__icon">AI</span>
             <div>
               <strong>AI 成长控制台</strong>
-              <small>正在规划你的职业通关路线</small>
+              <small>{{ dashboard.currentStage }} · {{ dashboard.targetPosition }}</small>
             </div>
           </div>
 
           <div class="console-route">
-            <span class="done">画像</span>
-            <span class="done">能力</span>
-            <span class="current">简历</span>
-            <span>面试</span>
-            <span>Offer</span>
+            <span
+              v-for="(label, index) in dashboard.milestoneLabels"
+              :key="label"
+              :class="{
+                done: index + 1 < dashboard.milestoneStep,
+                current: index + 1 === dashboard.milestoneStep,
+              }"
+            >
+              {{ label }}
+            </span>
           </div>
 
           <div class="console-message">
-            建议本周补强 TypeScript，并把课程项目升级为可展示的工程化项目。
+            {{ dashboard.suggestion }}
           </div>
         </div>
 
         <div class="floating-card match-card">
           <small>岗位匹配度</small>
-          <strong>72%</strong>
-          <span>较上周 +8%</span>
+          <strong>{{ dashboard.matchScore }}%</strong>
+          <span>{{ trendLabel }}</span>
         </div>
 
         <div class="floating-card progress-card">
           <small>通关进度</small>
-          <strong>3 / 6</strong>
-          <div class="mini-progress"><span></span></div>
+          <strong>{{ completedMilestones }} / {{ dashboard.milestoneTotal }}</strong>
+          <div class="mini-progress"><span :style="{ width: progressWidth }"></span></div>
         </div>
 
         <div class="offer-badge">

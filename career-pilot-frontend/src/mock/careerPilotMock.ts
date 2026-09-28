@@ -2,6 +2,7 @@ import type {
   AbilityReport,
   CareerPlanBlock,
   DashboardSummaryItem,
+  DashboardSnapshot,
   FeatureEntry,
   InterviewRecord,
   JDAnalysis,
@@ -19,7 +20,7 @@ export const mockProfile: UserProfile = {
   targetCity: '杭州',
   targetIndustry: '互联网',
   languages: 'JavaScript, TypeScript, Python',
-  frameworks: 'Vue 3, Element Plus, FastAPI',
+  frameworks: 'Vue 3, Element Plus, Spring Boot',
   projects: '课程管理系统、个人博客、登录鉴权模块',
   competitions: '蓝桥杯省赛备赛、校级创新项目',
   internships: '暂无正式实习',
@@ -50,7 +51,7 @@ export const dashboardSummary: DashboardSummaryItem[] = [
     tag: '本周提升',
     label: '岗位匹配度',
     value: '72%',
-    description: '距离实习投递还需补齐关键短板。',
+    description: '距离实习投递还需要补齐关键短板。',
     progress: 72,
   },
   {
@@ -62,6 +63,37 @@ export const dashboardSummary: DashboardSummaryItem[] = [
     progress: 35,
   },
 ];
+
+export const mockDashboardSnapshot: DashboardSnapshot = {
+  grade: mockProfile.grade,
+  currentStage: mockProfile.currentStage,
+  targetPosition: mockProfile.targetPosition,
+  currentLevel: '能力建设期，需要积累课程项目、比赛经历和可展示成果。',
+  matchScore: 72,
+  matchTrend: 0,
+  learningProgress: 35,
+  totalTasks: 5,
+  completedTasks: 2,
+  pendingTasks: 3,
+  resumeMaterialCount: 3,
+  materializedTaskCount: 1,
+  jdAnalysisCount: 1,
+  interviewCount: 0,
+  targetOfferTitle: 'Frontend Intern',
+  targetOfferCompany: 'Demo Company',
+  targetOfferMatchScore: 72,
+  finalResumeTitle: '',
+  nextTaskTitle: '完善项目经历素材',
+  nextTaskType: 'resume',
+  nextTaskDueDate: '',
+  milestoneStep: 3,
+  milestoneTotal: 6,
+  milestoneLabels: ['职业认知', '技能学习', '项目积累', '简历优化', '模拟面试', 'Offer 冲刺'],
+  suggestionTitle: '本周重点补强 TypeScript 和项目工程化表达',
+  suggestion: '完善一个可展示的前后端联调项目，并把学习成果沉淀为简历素材。',
+  suggestionPath: '/learning-plan',
+  dataSource: 'mock',
+};
 
 export const careerPlanBlocks: CareerPlanBlock[] = [
   {
@@ -84,12 +116,15 @@ export const abilityReport: AbilityReport = {
   strengths: ['Vue 基础', '页面开发能力', '课程项目经验'],
   weaknesses: ['TypeScript', '工程化', '性能优化', '面试表达'],
   suggestions: ['TypeScript > 项目重构 > 简历优化 > 模拟面试', '将课程管理系统补充为前后端联调项目', '准备 3 个项目难点的 STAR 表达'],
+  summary: '优先补齐工程化短板，并把练习成果沉淀为项目证据。',
+  skillScores: { Vue: 78, TypeScript: 55, 工程化: 52, 面试表达: 60 },
+  analysisSource: 'local_fallback',
 };
 
 export const resumeMaterials: ResumeMaterial[] = [
   {
     id: 1,
-    type: '项目经历',
+    type: 'project',
     title: '课程管理系统登录模块',
     originalContent: '我做了一个登录页面，可以输入账号密码，然后跳转首页。',
     optimizedContent: '负责课程管理系统登录模块开发，实现账号密码输入、登录状态管理与页面路由跳转，提升系统认证流程完整性。',
@@ -97,7 +132,7 @@ export const resumeMaterials: ResumeMaterial[] = [
   },
   {
     id: 2,
-    type: '课程设计',
+    type: 'course',
     title: '个人博客前端页面',
     originalContent: '做了博客首页和文章详情页。',
     optimizedContent: '完成个人博客首页、文章列表与详情页开发，封装通用文章卡片组件，提高页面复用性与维护效率。',
@@ -105,7 +140,7 @@ export const resumeMaterials: ResumeMaterial[] = [
   },
   {
     id: 3,
-    type: '比赛经历',
+    type: 'competition',
     title: '蓝桥杯算法训练',
     originalContent: '刷了一些算法题，准备参加蓝桥杯。',
     optimizedContent: '围绕蓝桥杯竞赛完成基础算法训练，覆盖数组、字符串、动态规划等题型，提升代码实现与问题拆解能力。',
@@ -122,6 +157,7 @@ export const jdAnalysis: JDAnalysis = {
   matchScore: 72,
   recommendedMaterials: ['课程管理系统登录模块', '个人博客前端页面', '前后端联调项目'],
   suggestions: ['补充 TypeScript 使用细节', '突出组件拆分和状态管理', '用数据说明项目效果'],
+  analysisSource: 'local_fallback',
 };
 
 export const interviewRecord: InterviewRecord = {
@@ -135,6 +171,7 @@ export const interviewRecord: InterviewRecord = {
     star: 58,
   },
   feedback: '回答中能说明项目背景，但建议补充技术选型、关键难点、个人职责和量化结果。',
+  evaluationSource: 'local_fallback',
 };
 
 export const featureEntries: FeatureEntry[] = [
@@ -148,7 +185,7 @@ export const featureEntries: FeatureEntry[] = [
     icon: 'Plan',
     title: 'AI 职业规划',
     description: '根据个人情况生成大学阶段学习路线和求职规划。',
-    path: '/planning',
+    path: '/learning-plan',
   },
   {
     icon: 'Gap',
@@ -160,13 +197,13 @@ export const featureEntries: FeatureEntry[] = [
     icon: 'Resume',
     title: '简历素材库',
     description: '沉淀项目、比赛、课程设计和实习经历，为简历提前积累素材。',
-    path: '/resume',
+    path: '/resume/materials',
   },
   {
     icon: 'JD',
     title: 'JD 匹配优化',
     description: '根据岗位 JD 自动分析关键词，生成更匹配岗位的简历表达。',
-    path: '/jd',
+    path: '/career/jd-analysis',
   },
   {
     icon: 'Mock',

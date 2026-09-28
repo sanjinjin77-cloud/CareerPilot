@@ -1,0 +1,54 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: careerpilot-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-careerpilot_dev_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-career_pilot}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - careerpilot-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    container_name: careerpilot-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8081
+      MYSQL_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-career_pilot}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD:-careerpilot_dev_password}
+      SQL_INIT_MODE: ${SQL_INIT_MODE:-never}
+      FLYWAY_ENABLED: ${FLYWAY_ENABLED:-true}
+      FLYWAY_BASELINE_ON_MIGRATE: ${FLYWAY_BASELINE_ON_MIGRATE:-true}
+      JWT_SECRET: ${JWT_SECRET:-career-pilot-change-this-before-public-deploy}
+      JWT_ISSUER: ${JWT_ISSUER:-career-pilot}
+      JWT_EXPIRATION_SECONDS: ${JWT_EXPIRATION_SECONDS:-86400}
+      AI_ENABLED: ${AI_ENABLED:-false}
+      AI_BASE_URL: ${AI_BASE_URL:-https://api.openai.com/v1}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-}
+      AI_TIMEOUT_SECONDS: ${AI_TIMEOUT_SECONDS:-60}
+      AI_QUOTA_ENABLED: ${AI_QUOTA_ENABLED:-true}
+      AI_DAILY_LIMIT: ${AI_DAILY_LIMIT:-20}
+    ports:
+      - "${BACKEND_PORT:-8081}:8081"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8081/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  careerpilot-mysql-data:

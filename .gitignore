@@ -1,0 +1,30 @@
+# Editor-specific local settings
+.vscode/
+
+# Local secrets and environment files
+.env
+.env.*
+!.env.example
+!.env.production.example
+!backend/.env.production.example
+!career-pilot-frontend/.env.production.example
+backend/.env.local
+
+# Java build output
+backend/target/
+
+# Frontend dependencies and build output
+career-pilot-frontend/node_modules/
+career-pilot-frontend/dist/
+*.tsbuildinfo
+
+# Prevent accidental emitted JavaScript mirrors from being committed in src.
+career-pilot-frontend/src/**/*.js
+
+# Runtime logs
+*.log
+.dev/
+
+# OS metadata
+.DS_Store
+Thumbs.db

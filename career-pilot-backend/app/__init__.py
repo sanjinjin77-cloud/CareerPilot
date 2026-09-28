@@ -1,1 +1,0 @@
-"""CareerPilot backend application package."""

@@ -1,23 +1,84 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
+import { RadarChart } from 'echarts/charts';
+import { RadarComponent } from 'echarts/components';
+import { init, use, type EChartsType } from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
 
 import { analyzeAbilityApi } from '@/api/career';
+import { getProfileApi } from '@/api/profile';
 import { abilityReport as mockAbilityReport } from '@/mock/careerPilotMock';
 import type { AbilityReport } from '@/types';
 
 const abilityReport = ref<AbilityReport>({ ...mockAbilityReport });
+const chartElement = ref<HTMLDivElement | null>(null);
+const usingFallback = ref(true);
+let chart: EChartsType | null = null;
+
+use([RadarChart, RadarComponent, CanvasRenderer]);
+
+const sourceLabel = computed(() => (
+  abilityReport.value.analysisSource === 'llm' ? '大模型分析' : '本地降级'
+));
+
+function renderRadar() {
+  if (!chartElement.value) return;
+  if (!chart) chart = init(chartElement.value);
+
+  const scores = Object.entries(abilityReport.value.skillScores);
+  chart.setOption({
+    animationDuration: 500,
+    radar: {
+      radius: '64%',
+      indicator: scores.map(([name]) => ({ name, max: 100 })),
+      splitNumber: 4,
+      axisName: { color: '#374151' },
+      splitArea: { areaStyle: { color: ['#ffffff', '#f8fafc'] } },
+      splitLine: { lineStyle: { color: '#dbe3ec' } },
+      axisLine: { lineStyle: { color: '#cbd5e1' } },
+    },
+    series: [{
+      type: 'radar',
+      data: [{
+        value: scores.map(([, score]) => score),
+        name: abilityReport.value.targetPosition,
+        areaStyle: { color: 'rgba(37, 99, 235, 0.18)' },
+        lineStyle: { color: '#2563eb', width: 2 },
+        itemStyle: { color: '#0f766e' },
+      }],
+    }],
+  });
+}
 
 async function refreshAbilityReport() {
   try {
-    abilityReport.value = await analyzeAbilityApi(abilityReport.value.targetPosition);
+    const profile = await getProfileApi();
+    abilityReport.value = await analyzeAbilityApi(profile.targetPosition || abilityReport.value.targetPosition);
+    usingFallback.value = false;
     ElMessage.success('已从后端生成能力分析');
   } catch {
-    ElMessage.warning('后端不可用，继续使用 mock 能力分析');
+    usingFallback.value = true;
+    ElMessage.warning('能力分析加载失败，当前保留页面演示数据');
   }
 }
 
-onMounted(refreshAbilityReport);
+watch(abilityReport, renderRadar, { deep: true, flush: 'post' });
+
+onMounted(() => {
+  renderRadar();
+  window.addEventListener('resize', handleResize);
+  refreshAbilityReport();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize);
+  chart?.dispose();
+});
+
+function handleResize() {
+  chart?.resize();
+}
 </script>
 
 <template>
@@ -33,18 +94,33 @@ onMounted(refreshAbilityReport);
       <div class="module-hero__status">
         <span>目标岗位</span>
         <strong>{{ abilityReport.targetPosition }}</strong>
-        <em>{{ abilityReport.suggestions[0] }}</em>
+        <em>{{ abilityReport.summary }}</em>
       </div>
     </div>
 
     <el-card shadow="never" class="module-card">
+      <template #header>
+        <div class="card-header-action">
+          <span>能力评估结果</span>
+          <div class="source-meta">
+            <el-tag v-if="usingFallback" type="warning">演示数据</el-tag>
+            <el-tag :type="abilityReport.analysisSource === 'llm' ? 'success' : 'warning'">
+              {{ sourceLabel }}
+            </el-tag>
+            <small v-if="abilityReport.model">{{ abilityReport.model }}</small>
+          </div>
+        </div>
+      </template>
       <el-row :gutter="20" align="middle">
-        <el-col :xs="24" :md="8" class="ability-score">
+        <el-col :xs="24" :md="6" class="ability-score">
           <el-progress type="dashboard" :percentage="abilityReport.matchScore" />
           <h3>{{ abilityReport.targetPosition }}匹配度</h3>
-          <p>已具备页面开发基础，下一阶段重点提升工程化和项目表达。</p>
+          <p>{{ abilityReport.summary }}</p>
         </el-col>
-        <el-col :xs="24" :md="16">
+        <el-col :xs="24" :md="8">
+          <div ref="chartElement" class="ability-radar" aria-label="岗位能力雷达图"></div>
+        </el-col>
+        <el-col :xs="24" :md="10">
           <el-descriptions :column="1" border>
             <el-descriptions-item label="优势">
               {{ abilityReport.strengths.join('、') }}
@@ -79,3 +155,20 @@ onMounted(refreshAbilityReport);
     </div>
   </section>
 </template>
+
+<style scoped>
+.ability-radar {
+  width: 100%;
+  height: 300px;
+}
+
+.source-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.source-meta small {
+  color: #6b7280;
+}
+</style>

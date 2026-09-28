@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { dashboardSummary } from '@/mock/careerPilotMock';
+import type { DashboardSummaryItem } from '@/types';
+
+defineProps<{
+  items: DashboardSummaryItem[];
+}>();
 </script>
 
 <template>
   <section class="summary-grid">
-    <article v-for="item in dashboardSummary" :key="item.label" class="summary-card">
+    <article v-for="item in items" :key="item.label" class="summary-card">
       <div class="summary-card__top">
         <span class="summary-card__icon">{{ item.icon }}</span>
         <em>{{ item.tag }}</em>
